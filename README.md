@@ -48,9 +48,28 @@ Next, the powershell script downloaded another image (```https://www.fhccu[.]com
 During this study, we came up with a similar powershell script, named [**chocoloader.ps1**](tools/chocoloader.ps1), that installs [**Anaconda**](https://community.chocolatey.org/packages/anaconda3) instead which doesn't require elevated privileges. We also implemented a registry run key persistence which will run python and the Serpent backdoor. 
 
 ---
-## Custom C2
+## Command and Control
 
-The reverse engineering of the Serpent backdoor revealed the following custom Python C2 agent :
+Both Proofpoint's and VMWare TAU's analysis revealed a custom C2 agent written in Python by the Threat Actor (see the full client code at the end of this chapter).
+
+This custom C2 agent is a step-by-step :
+1. Every 10 seconds, the client will fetches text-based commands to the _"orders"_ / _"commands"_ server with infected machine's hostname as a unique identifier in the "Referer" HTTP header
+2. If the response contains something, and is different from the last command, the client waits 20 seconds, then runs the new command
+3. Then, in order to collect the output, the client will send it to Termbin, a pastebin-like website : give it content and receive a link to access your previously uploaded content
+5. This request is sent to URLs ending with ".onion.pet", where _.pet_ domains act as proxies to the real Tor network's websites
+8. Once Termbin sent back a link to the client, it is then sent to another _.pet_ domain controlled by attackers, which will act as an _"anwser"_ server with, again, the "Referer" HTTP header being used to store the hostname and the Termbin link
+
+In a simpler non-technical version :
+1. Every 10 seconds, the python client asks the C2 server new commands to execute
+2. Then it executes a new command for the given hostname
+3. Output of the command is sent to a pastebin-like website, in exchange for a public link
+4. This link is then sent to another attacker-controlled server, where is would then be accessed by attackers
+
+From the C2 agent, we mapped the workflow of the Command & Control cycle, and the data exfiltration process :
+
+![Serpent Group custom C2 Workflow](img/workflow_apt_english.png "Threat Actor Command & Control Infrastructure")
+
+Here is the full custom Python C2 agent :
 
 ```python
 #!/usr/bin/python3  
@@ -133,21 +152,17 @@ while True:
         pass
 
 ```
-Here is a quick analyze :
-1. Every 10 seconds, Client fetches "orders" or "commands" server with his hostname as unique identifier in the "Referer" HTTP header
-2. If response is not empty, Client waits 20 seconds, and then run the given command
-3. Result of the command will be sent to Termbin, a pastebin-like website : give it content and receive a link to access your content posted
-4. It sets up a SOCKS proxy through Tor
-5. Client makes a request to Termbin, and get a link
-6. The link is then sent to the "anwser" C2 server with the HTTP header "Referer" being used to store the hostname and the Termbin link to access to the results of the executed command
 
-This is what the client does.
+For testing purposes, in order to reproduce this environment, with merged the two servers (commands and answers) into one, and removed the Tor proxy part :
+_lab testing workflow_
 
-From the Serpent client, we mapped the workflow of the Command & Control cycle, and the data exfiltration process :
-![](img/workflow_apt_english.png "Threat Actor Command & Control Infrastructure")
+Now, from the reverse engineering of the client, we developed the C2 server application according to the logic of the client.
+We used the following development stack :
+- Back-end : Flask for Python Web Server
+- Front-End : VueJS / TailwindCSS
+- Database : SQLite3 
 
-Once we 
-
+Here is what our godly designed dahsboard looks like :
 
 
 
