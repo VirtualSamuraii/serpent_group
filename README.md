@@ -162,7 +162,13 @@ We used the following development stack :
 - Front-End : VueJS / TailwindCSS
 - Database : SQLite3 
 
-Here is what our godly designed dahsboard looks like :
+Here is what our **godly designed** dahsboard looks like :
+_image of dahsboard_
+
+Now here is a video demo of the basic C2 workflow and data exfil :
+
+Files exfiltration was not part of the process, so we developed it following the same data exfil procedure for text content :
+
 
 
 
