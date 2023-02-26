@@ -32,7 +32,7 @@ The attached Microsoft Word document, masquerading as an information related to 
 
 The use of this steganography technique is well documented ([**MITRE T1027.003**](hhttps://attack.mitre.org/software/S0231/)). Groups like **Sandworm Team** have already exploited it during their campaigns, particularly with the [**Invoke-PSImage**](https://github.com/peewpw/Invoke-PSImage) tool.
 
-We developed our own version of the malicious VBA Macro which decrypts and executes a powershell command under the Outlook process to download an retrieve the malicious image.
+We developed our own version of the malicious VBA Macro ([**macro.vba**](tools/macro.vba)) which decrypts and executes a powershell command under the Outlook process to download an retrieve the malicious image.
 
 <p align=center>
     <img src="img/macro.png" width="80%">
@@ -57,6 +57,24 @@ TODO
 
 ---
 ## Defense
+
+### SIEM
+
+Here are a query you could use in Elastic Kibana to detect office processes that spawn child processes:
+
+<pre>
+<code>
+event.module : sysmon and event.type : process_start and process.parent.executable : *EXCEL.EXE | *WINWORD.EXE | *POWERPNT.EXE | *OUTLOOK.EXE
+</code>
+</pre>
+
+And here's the equivalent on Splunk :
+
+<pre>
+<code>
+event.module=sysmon event.type=process_start process.parent.executable IN ("*EXCEL.EXE", "*WINWORD.EXE", "*POWERPNT.EXE", "*OUTLOOK.EXE")
+</code>
+</pre>
 
 ### Registry keys
 
