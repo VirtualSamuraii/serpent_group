@@ -28,7 +28,7 @@ Attackers used spear-phishing with attachment (MITRE T1566.001) and a resume-the
 </p>
 
 
-The attached Microsoft Word document, masquerading as an information related to GPDR, contained a malicious VBA macro which downloads an image (```https://www.fhccu[.]com/images/ship3[.]jpg```)  that contains a powershell script embedded and executes it.
+The attached Microsoft Word document, masquerading as an information related to GPDR, contained a malicious VBA macro which downloads an image (```https://www.fhccu[.]com/images/ship3[.]jpg```)  that contains an embedded powershell script and executes it.
 
 The use of this steganography technique is well documented ([**MITRE T1027.003**](hhttps://attack.mitre.org/software/S0231/)). Groups like **Sandworm Team** have already exploited it during their campaigns, particularly with the [**Invoke-PSImage**](https://github.com/peewpw/Invoke-PSImage) tool.
 
