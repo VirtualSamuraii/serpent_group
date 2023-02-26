@@ -1,6 +1,9 @@
 # Serpent Group 🐍
 
-![](img/serpent.jpg)
+<p align=center>
+    <img src="img/serpent.jpg" width="70%">
+</p>
+
 
 A brief and technical study about a malicious campaign targeting french entities in the construction, real estate and government industries.
 
@@ -53,7 +56,17 @@ During this study, we came up with a similar powershell script, named [**chocolo
 TODO
 
 ---
-## YARA Rules
+## Defense
+
+### Registry keys
+
+Every time a user clicks "**Enable Editing**" or "**Enable Content**" when opening a Microsoft Office file, its path is added as a value to the TrustedRecords key in the registry (*HKCU\SOFTWARE\Microsoft\Office\16.0\Word\Security\Trusted Documents\TrustRecords*).
+
+If the last four bytes of the value are set to **FF FF FF 7F**, it means that the user enabled macros when opening this document.
+
+A cool idea would be to write a simple script that regularly monitors all trusted documents with macros enabled, extracts the macros and looks for IOCs or any malicious activity.
+
+### YARA Rules
 
 Here is an example of a yara rule to detect a powershell or python script embedded in an image. This rule has been generated using chatGPT.
 
