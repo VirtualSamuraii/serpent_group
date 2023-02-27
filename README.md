@@ -55,7 +55,7 @@ Both Proofpoint's and VMWare TAU's analysis revealed a custom C2 Agent written i
 This custom C2 Agent is a step-by-step :
 1. Every 10 seconds, the client will fetches text-based commands from the _"orders"_ / _"commands"_ server with its hostname as a unique identifier in the "Referer" HTTP header
 
-![image38.png](./img\image38.png)
+![Initial request from client to server](img/image38.png "Initial request from client to server")
 
 3. If the response contains something, and is different from the last command, the client waits 20 seconds, then runs the new command
 
@@ -85,7 +85,7 @@ We used the following development stack :
 - Database : SQLite3 
 
 Here is our **godly designed** dahsboard :
-![c2dashboard.png](./img\c2dashboard.png)
+![Our amazing custom C2 Dashboard](img/c2dashboard.png "Our amazing custom C2 Dashboard")
 
 In the upper-side, you can see infected machines and their general info :
 - IP address
@@ -94,21 +94,21 @@ In the upper-side, you can see infected machines and their general info :
 
 Once you click a machine, more information is shown in the lower part, and commands can be given to this machine.
 For instance, an operator could want to know what files are in the home directory of an infected user, and would give the following command : 
-![image21.png](./img\image21.png)
+![image21.png](img/image21.png "image21.png")
 
-The hidden C2 Client on the infected machine will fetch the order, execute, send the output to Termbin, and send the link back to the C2 Server :
-![image26.png](./img\image26.png)
+The C2 Client on the infected machine will fetch the order, execute, send the output to Termbin, and send the link back to the C2 Server :
+![C2 Server receiving an output link from an infected machine (here narek-pc)](img/image26.png "C2 Server receiving an output link from an infected machine (here narek-pc)")
 
 Once the C2 Server registered the response link, the operator can freely check the output, and delete if needed :
-![image23.png](./img\image23.png)
+![Lower part of our C2 Dashboard](img/image23.png "Lower part of our C2 Dashboard")
 
 Now here is a video demo of the basic C2 workflow and data exfil :
-![image5.png](./img\image5.png)
+![Output of executed command](img/image5.png "Output of executed command")
 
 However, **files exfiltration** was not part of the process,
 
 So, we developed it following the same data exfil procedure for text content : compress files and send them to an online files hosting service, in exchange for a link. The service used was _transfer.sh_ :
-![image30.png](./img\image30.png)
+![File sharing service from command-line](img/image30.png "File sharing service from command-line")
 
 In order to compress folders into a zip archive, we used the native Powershell function called _Compress-Archive_, and added this module to the Client.
 
@@ -117,13 +117,13 @@ We created a custom command with a basic syntax :
 ccdl <file1> <file2>
 ```
 
-![image17.png](./img\image17.png)
-![image37.png](./img\image37.png)
+![Operator uses our custom get files command](img/image17.png "Operator uses our custom get files command")
+![image37.png](img/image37.png)
 
 And as previously, the C2 Operator receives the link and can now download files from an infected machine :
-![image31.png](./img\image31.png)
+![Link to files got from infected machine](img/image31.png "Link to files got from infected machine")
 
-![image13.png](./img\image13.png)
+![image13.png](img/image13.png)
 
 _This module is rudimentary, and could be improved to be able to download particular files. Indeed, the Powershell function allows to create archives of a maximum size of 2GB. However, this does not require installing any additional tools, and could potentially not raise alerts._
 
