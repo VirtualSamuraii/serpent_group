@@ -1,0 +1,8 @@
+1/ Ouvrir DashboardServices.js
+Remplacez l'IP par l'IP de ton serveur C2
+
+2/ Lancer : npm run build
+Vous pouvez maintenant déployer le dossier dist/ contenant le projet web standalone
+
+3/ Ouvrir dist/index.html pour accéder au dashboard
+Vous pouvez maintenant lancer le client python sur le poste de la victime

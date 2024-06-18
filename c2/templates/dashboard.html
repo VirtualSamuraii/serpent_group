@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>C2 Dashboard</title>
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+	<link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
+	<link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='images/favicon-32x32.png')}}">
+	<link rel="icon" type="image/png" sizes="16x16" href="{{url_for('static', filename='images/favicon-16x16.png')}}">
+</head>
+<body>
+
+	<div id="app"></div>
+
+	<!-- 
+		vuejs
+		vuerouter
+		httpVueLoader
+	-->
+	<script src="{{url_for('static', filename='js/vue-2.6.0.js')}}"></script>
+	<script src="{{url_for('static', filename='js/vue-router.js')}}"></script>
+	<script src="{{url_for('static', filename='js/httpVueLoader.js')}}"></script>
+
+	<script type="module">
+		// import 'Home.vue' from "{{url_for('static', filename='js/components/home.vue')}}"
+		import Home from "{{url_for('static', filename='./js/components/home.vue')}}"
+	</script>
+
+	<script>
+		const routes = [
+			{
+				path: "/",
+				component: Home
+			}
+		];
+
+		var router = new VueRouter({
+			routes: routes,
+			mode: "history",
+			base: "/",
+		})
+
+		var app = new Vue({
+			el: '#app',
+			router: router
+			// components: {
+			// 	'card': httpVueLoader("{{url_for('static', filename='js/components/card.vue')}}"),
+			// 	'Home': httpVueLoader("{{url_for('static', filename='js/components/home.vue')}}")
+			// }
+		});
+
+	</script>
+</body>
+</html>
