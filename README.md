@@ -55,6 +55,9 @@ During this study, we came up with a similar powershell script, named [**chocolo
 
 Both Proofpoint's and VMWare TAU's analysis revealed a custom C2 Agent written in Python by the Threat Actor (see the full client code at the end of this chapter).
 
+Here is a working demo of our developed C2 Web app and C2 server based on the leaked Python client :
+![POC C2](demo_poc.mp4)
+
 This custom C2 Agent is a step-by-step :
 1. Every 10 seconds, the client will fetches text-based commands from the _"orders"_ / _"commands"_ server with its hostname as a unique identifier in the "Referer" HTTP header
 
