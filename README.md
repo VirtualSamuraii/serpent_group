@@ -57,8 +57,7 @@ Both Proofpoint's and VMWare TAU's analysis revealed a custom C2 Agent written i
 
 Here is a working demo of our developed C2 Web app and C2 server based on the leaked Python client :
 
-https://github.com/VirtualSamuraii/serpent_group/blob/main/demo_c2.mp4
-
+https://github.com/VirtualSamuraii/serpent_group/assets/41095023/2fac0996-b64f-443c-8792-7edc54d1ab70
 
 This custom C2 Agent is a step-by-step :
 1. Every 10 seconds, the client will fetches text-based commands from the _"orders"_ / _"commands"_ server with its hostname as a unique identifier in the "Referer" HTTP header
