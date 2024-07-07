@@ -82,10 +82,10 @@ From the C2 Agent, we mapped the workflow of the Command & Control cycle, and th
 
 ![Serpent Group custom C2 Workflow](img/workflow_apt_english.png "Threat Actor Command & Control Infrastructure")
 
-For testing purposes, in order to reproduce this environment, with merged the two servers (commands and answers) into one, and removed the Tor proxy part :
+For testing purposes, in order to reproduce this environment, we merged the two servers (commands and answers) into one, and removed the Tor proxy part :
 _lab testing workflow_
 
-Now, from the reverse engineering of the client, we developed the C2 Server application according to the logic of the client.
+Now, based from the client, we developed the C2 Server application according to the client's logic.
 We used the following development stack :
 - Back-end : Flask for Python Web Server
 - Front-End : VueJS / TailwindCSS
@@ -100,10 +100,10 @@ In the upper-side, you can see infected machines and their general info :
 - OS
 
 Once you click a machine, more information is shown in the lower part, and commands can be given to this machine.
-For instance, an operator could want to know what files are in the home directory of an infected user, and would give the following command : 
+For instance, an operator who wants to know what files are in the home directory of an infected user would give the following command : 
 ![image21.png](img/image21.png "image21.png")
 
-The C2 Client on the infected machine will fetch the order, execute, send the output to Termbin, and send the link back to the C2 Server :
+The C2 Client on the infected machine will fetch the order, execute and send the output to Termbin. Finally, the link is sent back to the C2 Server :
 
 ![C2 Server receiving an output link from an infected machine (here narek-pc)](img/image26.png "C2 Server receiving an output link from an infected machine (here narek-pc)")
 
@@ -113,9 +113,9 @@ Once the C2 Server registered the response link, the operator can freely check t
 Now here is a video demo of the basic C2 workflow and data exfil :
 ![Output of executed command](img/image5.png "Output of executed command")
 
-However, **files exfiltration** was not part of the process,
+However, **file exfiltration** was not part of the process,
 
-So, we developed it following the same data exfil procedure for text content : compress files and send them to an online files hosting service, in exchange for a link. The service used was _transfer.sh_ :
+So, we developed it following the same data exfiltration procedure for text content : compress files and send them to an online files hosting service, in exchange for a link. The service used was _transfer.sh_ :
 ![File sharing service from command-line](img/image30.png "File sharing service from command-line")
 
 In order to compress folders into a zip archive, we used the native Powershell function called _Compress-Archive_, and added this module to the Client.
