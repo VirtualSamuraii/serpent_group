@@ -92,7 +92,7 @@ We used the following development stack :
 - Front-End : VueJS / TailwindCSS
 - Database : SQLite3 
 
-Here is our **godly designed** dahsboard :
+Here is our C2 dahsboard :
 ![Our amazing custom C2 Dashboard](img/c2dashboard.png "Our amazing custom C2 Dashboard")
 
 In the upper-side, you can see infected machines and their general info :
@@ -136,7 +136,7 @@ And as previously, the C2 Operator receives the link and can now download files 
 
 _This module is rudimentary, and could be improved to be able to download particular files. Indeed, the Powershell function allows to create archives of a maximum size of 2GB. However, this does not require installing any additional tools, and could potentially not raise alerts._
 
-Here is the original Python C2 Agent :
+Here is the original Serpent Backdoor as discovered in the wild :
 
 ```python
 #!/usr/bin/python3  
@@ -225,7 +225,7 @@ while True:
 
 ### SIEM
 
-Here are a query you could use in Elastic Kibana to detect office processes that spawn child processes:
+You can use this query in Elastic to detect office processes that spawn child processes:
 
 <pre>
 <code>
@@ -282,6 +282,8 @@ rule Image_Containing_Scripting_Language
 This rule looks for the strings "powershell", "python" in the file being scanned, the encoded version of the these string, the string "create script" which is a common string found in scripts, and also look for common obfuscation techniques such as eval(), str_rot13(), base64_decode().
 
 It's also possible to add more obfuscation techniques, but keep in mind that the rule may become too specific and may not match other variations of the same script. It's always a balance between specificity and coverage.
+
+Please be aware that this rule isn't enough to detect embedded code in images.
 
 ## References
 

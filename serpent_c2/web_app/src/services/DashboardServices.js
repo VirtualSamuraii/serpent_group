@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// CHANGER l'IP SUIVANTE
-var c2_ip = "192.168.1.24";
+// REPLACE WITH YOUR C2 SERVER IP Address
+var c2_ip = "127.0.0.1";
 
 const apiClient = axios.create({
 	baseURL: 'http://' + c2_ip + ':5000/api/',
